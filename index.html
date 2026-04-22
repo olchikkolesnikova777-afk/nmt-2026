@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>НМТ 2026 — Українська мова</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div class="app">
+
+  <!-- ═══ HOME SCREEN ═══ -->
+  <div id="home-screen" class="home-screen">
+
+    <div class="header">
+      <div class="header-badge">🇺🇦 Підготовка до НМТ 2026</div>
+      <h1>Українська <span>мова</span></h1>
+      <p>Тренуйся по темах або симулюй повний тест НМТ</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card green">
+        <div class="num" id="stat-topics">0/6</div>
+        <div class="lbl">Тем пройдено</div>
+      </div>
+      <div class="stat-card gold">
+        <div class="num" id="stat-score">—</div>
+        <div class="lbl">Найкращий %</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="num" id="stat-nmt">—</div>
+        <div class="lbl">Бал НМТ (симул.)</div>
+      </div>
+    </div>
+
+    <!-- NMT full test button -->
+    <div class="section-title">Симуляція тесту</div>
+    <button class="nmt-btn" id="nmt-btn">
+      <span class="icon">📋</span>
+      <div class="info">
+        <h3>Повний тест НМТ</h3>
+        <p>30 питань · всі теми · результат у балах (0–45)</p>
+      </div>
+      <span class="arrow">→</span>
+    </button>
+
+    <!-- Topic Cards -->
+    <div class="section-title">Тренування по темах</div>
+    <div class="topic-grid" id="topic-grid"></div>
+
+    <p style="text-align:center; color: #475569; font-size:.78rem; margin-top: 8px;">
+      Програма відповідає офіційній програмі НМТ 2026 з української мови
+    </p>
+
+  </div><!-- /home-screen -->
+
+  <!-- ═══ QUIZ SCREEN ═══ -->
+  <div id="quiz-screen" class="quiz-screen">
+
+    <div class="quiz-header">
+      <button class="back-btn" id="back-btn">← Назад</button>
+      <div class="quiz-meta">
+        <h2 id="quiz-title"></h2>
+        <p id="quiz-sub"></p>
+      </div>
+    </div>
+
+    <div class="q-progress">
+      <div class="q-progress-bar">
+        <div class="q-progress-fill" id="q-progress-fill"></div>
+      </div>
+      <span class="q-count" id="q-count">1 / 10</span>
+    </div>
+
+    <div class="question-card fade-up">
+      <span class="q-topic-badge" id="q-topic-badge"></span>
+      <div class="question-text" id="question-text"></div>
+      <div class="options" id="options"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+
+    <div class="quiz-actions">
+      <button class="next-btn" id="next-btn">Далі →</button>
+      <button class="finish-btn" id="finish-btn">Завершити ✓</button>
+    </div>
+
+  </div><!-- /quiz-screen -->
+
+  <!-- ═══ RESULT SCREEN ═══ -->
+  <div id="result-screen" class="result-screen">
+
+    <div class="result-circle" id="result-circle">
+      <span class="result-score">0/0</span>
+      <small>результат</small>
+    </div>
+
+    <div class="result-title" id="result-title"></div>
+    <div class="result-sub" id="result-sub"></div>
+
+    <div class="result-breakdown" id="result-breakdown"></div>
+
+    <div class="result-btns">
+      <button class="result-btn primary" id="retry-btn">🔁 Спробувати ще раз</button>
+      <button class="result-btn secondary" id="home-btn">🏠 На головну</button>
+    </div>
+
+  </div><!-- /result-screen -->
+
+</div><!-- /app -->
+
+<script src="data/questions.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
