@@ -108,10 +108,30 @@ function startNmt() {
   renderQuestion();
 }
 
+// Highlight uppercase stressed letters in stress-topic options
+function highlightStress(text) {
+  // Replace sequences of uppercase Ukrainian letters with styled spans
+  return text.replace(/([АЕЄИІЇОУЮЯBГДЗКЛМНПРСТЦЩФХЧ]{1})/g, (m) => {
+    // Check if this is a single uppercase Ukrainian vowel (stressed)
+    if ('АЕЄИІЇОУЮ'.includes(m)) {
+      return `<span class="stress-mark">${m}</span>`;
+    }
+    return m;
+  });
+}
+
+function formatOption(opt, topicId) {
+  if (topicId === 'stress' || (state.mode === 'nmt')) {
+    return highlightStress(opt);
+  }
+  return opt;
+}
+
 // ── Render Question ────────────────────────────────────────
 function renderQuestion() {
   const q = state.questions[state.current];
   const total = state.questions.length;
+  const topicId = state.topicId || (q.topic === 'Наголос' ? 'stress' : '');
 
   // Progress
   document.getElementById('q-progress-fill').style.width = `${(state.current / total) * 100}%`;
@@ -126,17 +146,17 @@ function renderQuestion() {
 
   const optsEl = document.getElementById('options');
   optsEl.innerHTML = '';
-  const letters = ['А', 'Б', 'В', 'Г', 'Д'];
+  const letters = ['А', 'Б', 'В', 'Г'];
   q.opts.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${formatOption(opt, topicId)}</span>`;
     btn.addEventListener('click', () => selectAnswer(i));
     optsEl.appendChild(btn);
   });
 
   document.getElementById('explanation').classList.remove('show');
-  document.getElementById('explanation').textContent = '';
+  document.getElementById('explanation').innerHTML = '';
   document.getElementById('next-btn').classList.remove('show');
   document.getElementById('finish-btn').classList.remove('show');
   state.answered = false;
@@ -158,7 +178,8 @@ function selectAnswer(idx) {
   state.answers.push({ correct: isCorrect, topicLabel: q.topic || '' });
 
   const expEl = document.getElementById('explanation');
-  expEl.innerHTML = `<strong>${isCorrect ? '✓ Правильно!' : '✗ Неправильно.'}</strong> ${q.exp}`;
+  const expText = highlightStress(q.exp);
+  expEl.innerHTML = `<strong>${isCorrect ? '✓ Правильно!' : '✗ Неправильно.'}</strong> ${expText}`;
   expEl.classList.add('show');
 
   const isLast = state.current === state.questions.length - 1;
