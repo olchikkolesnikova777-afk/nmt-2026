@@ -3,67 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>НМТ 2026 — Лексика, Фразеологізми, Наголоси</title>
+  <title>НМТ 2026 — Лексика · Фразеологія · Наголоси</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
 <div class="app">
 
-  <!-- ═══ HOME SCREEN ═══ -->
-  <div id="home-screen" class="home-screen">
-
+  <!-- ═══ HOME ═══ -->
+  <div id="home-screen">
     <div class="header">
       <div class="header-badge">🇺🇦 Підготовка до НМТ 2026</div>
-      <h1>Лексика · Фразеологія · <span>Наголоси</span></h1>
-      <p>567 питань із PDF-матеріалів · три блоки + повний тест НМТ</p>
+      <h1><span style="color:#e11d48">Лексика</span> · <span style="color:#7c3aed">Фразеологія</span> · <span style="color:#0891b2">Наголоси</span></h1>
     </div>
 
-    <!-- Stats -->
     <div class="stats-bar">
       <div class="stat-card green">
-        <div class="num" id="stat-topics">0/6</div>
-        <div class="lbl">Тем пройдено</div>
+        <div class="num" id="stat-topics">0/3</div>
+        <div class="lbl">Блоків опрацьовано</div>
       </div>
       <div class="stat-card gold">
-        <div class="num" id="stat-score">—</div>
-        <div class="lbl">Найкращий %</div>
+        <div class="num" id="stat-cards">0</div>
+        <div class="lbl">Карток переглянуто</div>
       </div>
       <div class="stat-card blue">
-        <div class="num" id="stat-nmt">—</div>
-        <div class="lbl">Бал НМТ (симул.)</div>
+        <div class="num" id="stat-quiz">—</div>
+        <div class="lbl">Найкращий % у квізі</div>
       </div>
     </div>
 
-    <!-- NMT full test button -->
-    <div class="section-title">Симуляція тесту</div>
-    <button class="nmt-btn" id="nmt-btn">
-      <span class="icon">📋</span>
-      <div class="info">
-        <h3>Повний тест НМТ</h3>
-        <p>30 питань · 10 лексичних + 10 фразеологізмів + 10 наголосів · бал 0–45</p>
-      </div>
-      <span class="arrow">→</span>
-    </button>
-
-    <!-- Topic Cards -->
-    <div class="section-title">Тренування по блоках</div>
     <div class="topic-grid" id="topic-grid"></div>
 
-    <!-- Legend -->
     <div class="legend">
-      <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span><strong>Лексичні помилки</strong> — 100 пар «як НЕ треба → як правильно» з офіційного переліку</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span><strong>Фразеологізми</strong> — 232 стійкі вирази із поясненнями значень</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span><strong>Наголоси</strong> — 229 слів з наголосом. Наголошений склад = <span style="color:#fbbf24;font-weight:700">ВЕЛИКА ЛІТЕРА</span>: алф<span style="color:#fbbf24;font-weight:700">А</span>віт</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span><strong>Картки:</strong> натисни — побачиш правильну відповідь</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span><strong>Квіз:</strong> обери правильне значення з 4 варіантів</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span>Наголошений склад = <span class="stress-mark">ВЕЛИКА</span> літера: алф<span class="stress-mark">А</span>віт</div>
+    </div>
+  </div>
+
+  <!-- ═══ FLASHCARD SCREEN ═══ -->
+  <div id="flashcard-screen" class="hidden">
+    <div class="quiz-header">
+      <button class="back-btn" id="fc-back-btn">← Назад</button>
+      <div class="quiz-meta">
+        <h2 id="fc-title"></h2>
+        <p id="fc-sub"></p>
+      </div>
     </div>
 
-  </div><!-- /home-screen -->
+    <div class="q-progress">
+      <div class="q-progress-bar"><div class="q-progress-fill" id="fc-prog"></div></div>
+      <span class="q-count" id="fc-count">1 / 106</span>
+    </div>
+
+    <!-- The card -->
+    <div class="fc-scene" id="fc-scene">
+      <div class="fc-card" id="fc-card">
+        <div class="fc-front" id="fc-front">
+          <div class="fc-label fc-wrong-label">❌ Неправильно</div>
+          <div class="fc-word" id="fc-word-front"></div>
+          <div class="fc-hint">Натисни, щоб побачити правильно</div>
+        </div>
+        <div class="fc-back" id="fc-back">
+          <div class="fc-label fc-correct-label">✅ Правильно</div>
+          <div class="fc-word" id="fc-word-back"></div>
+          <div class="fc-hint">Натисни, щоб перегорнути назад</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fc-controls">
+      <button class="fc-btn fc-prev" id="fc-prev">← Назад</button>
+      <div class="fc-dots" id="fc-dots"></div>
+      <button class="fc-btn fc-next" id="fc-next">Далі →</button>
+    </div>
+
+    <div class="fc-bottom">
+      <button class="fc-known" id="fc-known">✓ Знаю</button>
+      <button class="fc-unknown" id="fc-unknown">✗ Ще вивчаю</button>
+    </div>
+
+    <div class="fc-summary hidden" id="fc-summary">
+      <div class="fc-summary-inner">
+        <div class="fc-sum-icon">🎉</div>
+        <h3 id="fc-sum-title">Усі картки переглянуто!</h3>
+        <p id="fc-sum-sub"></p>
+        <div class="result-btns">
+          <button class="result-btn primary" id="fc-retry-unknown">🔁 Повторити невивчені</button>
+          <button class="result-btn primary" id="fc-retry-all">↺ Почати заново</button>
+          <button class="result-btn secondary" id="fc-home">🏠 Додому</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ═══ QUIZ SCREEN ═══ -->
-  <div id="quiz-screen" class="quiz-screen">
-
+  <div id="quiz-screen" class="hidden">
     <div class="quiz-header">
-      <button class="back-btn" id="back-btn">← Назад</button>
+      <button class="back-btn" id="quiz-back-btn">← Назад</button>
       <div class="quiz-meta">
         <h2 id="quiz-title"></h2>
         <p id="quiz-sub"></p>
@@ -71,10 +108,8 @@
     </div>
 
     <div class="q-progress">
-      <div class="q-progress-bar">
-        <div class="q-progress-fill" id="q-progress-fill"></div>
-      </div>
-      <span class="q-count" id="q-count">1 / 10</span>
+      <div class="q-progress-bar"><div class="q-progress-fill" id="q-progress-fill"></div></div>
+      <span class="q-count" id="q-count">1 / 241</span>
     </div>
 
     <div class="question-card fade-up">
@@ -88,30 +123,24 @@
       <button class="next-btn" id="next-btn">Далі →</button>
       <button class="finish-btn" id="finish-btn">Завершити ✓</button>
     </div>
-
-  </div><!-- /quiz-screen -->
+  </div>
 
   <!-- ═══ RESULT SCREEN ═══ -->
-  <div id="result-screen" class="result-screen">
-
+  <div id="result-screen" class="hidden">
     <div class="result-circle" id="result-circle">
       <span class="result-score">0/0</span>
       <small>результат</small>
     </div>
-
     <div class="result-title" id="result-title"></div>
     <div class="result-sub" id="result-sub"></div>
-
     <div class="result-breakdown" id="result-breakdown"></div>
-
     <div class="result-btns">
-      <button class="result-btn primary" id="retry-btn">🔁 Спробувати ще раз</button>
-      <button class="result-btn secondary" id="home-btn">🏠 На головну</button>
+      <button class="result-btn primary" id="retry-btn">🔁 Ще раз</button>
+      <button class="result-btn secondary" id="home-btn">🏠 Додому</button>
     </div>
+  </div>
 
-  </div><!-- /result-screen -->
-
-</div><!-- /app -->
+</div>
 
 <script src="data/questions.js"></script>
 <script src="js/app.js"></script>
