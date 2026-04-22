@@ -6,11 +6,12 @@ let state = {
   current: 0,
   score: 0,
   answered: false,
-  answers: [],      // { correct: bool, topicLabel: str }
+  answers: [],
+  nmtScore: 0,
 };
 
 // ── Storage ────────────────────────────────────────────────
-const STORAGE_KEY = 'nmt2026_progress';
+const STORAGE_KEY = 'nmt2026_v2';
 
 function loadProgress() {
   try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; } catch { return {}; }
@@ -18,10 +19,10 @@ function loadProgress() {
 
 function saveTopicResult(topicId, score, total) {
   const p = loadProgress();
-  if (!p[topicId]) p[topicId] = { best: 0, attempts: 0 };
-  p[topicId].best = Math.max(p[topicId].best, score);
-  p[topicId].total = total;
-  p[topicId].attempts++;
+  if (!p[topicId]) p[topicId] = { best: 0, attempts: 0, total };
+  p[topicId].best     = Math.max(p[topicId].best, score);
+  p[topicId].total    = total;
+  p[topicId].attempts = (p[topicId].attempts || 0) + 1;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
   updateStats();
   renderTopics();
@@ -30,40 +31,42 @@ function saveTopicResult(topicId, score, total) {
 function saveNmtResult(score) {
   const p = loadProgress();
   p._nmt = p._nmt || { best: 0, attempts: 0 };
-  p._nmt.best = Math.max(p._nmt.best, score);
-  p._nmt.attempts++;
+  p._nmt.best     = Math.max(p._nmt.best, score);
+  p._nmt.attempts = (p._nmt.attempts || 0) + 1;
   localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
   updateStats();
 }
 
-// ── Stats ──────────────────────────────────────────────────
+// ── Stats bar ──────────────────────────────────────────────
 function updateStats() {
   const p = loadProgress();
-  let totalQ = 0, bestSum = 0, topicsDone = 0;
+  let topicsDone = 0, totalPct = 0;
   for (const t of TOPICS) {
-    if (p[t.id]) {
-      bestSum += p[t.id].best;
-      totalQ += p[t.id].total || t.questions.length;
+    if (p[t.id] && p[t.id].attempts > 0) {
       topicsDone++;
+      totalPct += p[t.id].best / (p[t.id].total || t.questions.length);
     }
   }
+  const avgPct = topicsDone ? Math.round(totalPct / topicsDone * 100) : 0;
   const nmtBest = p._nmt ? p._nmt.best : null;
 
   document.getElementById('stat-topics').textContent = `${topicsDone}/${TOPICS.length}`;
-  document.getElementById('stat-score').textContent = totalQ ? `${Math.round(bestSum/totalQ*100)}%` : '—';
-  document.getElementById('stat-nmt').textContent = nmtBest !== null ? `${nmtBest}/45` : '—';
+  document.getElementById('stat-score').textContent   = topicsDone ? `${avgPct}%` : '—';
+  document.getElementById('stat-nmt').textContent     = nmtBest !== null ? `${nmtBest}/45` : '—';
 }
 
 // ── Render Home ────────────────────────────────────────────
 function renderTopics() {
-  const p = loadProgress();
+  const p   = loadProgress();
   const grid = document.getElementById('topic-grid');
   grid.innerHTML = '';
 
   for (const t of TOPICS) {
-    const prog = p[t.id];
-    const pct = prog ? Math.round(prog.best / (prog.total || t.questions.length) * 100) : 0;
-    const scoreLabel = prog ? `${prog.best}/${prog.total || t.questions.length}` : '—';
+    const prog  = p[t.id];
+    const total = prog ? (prog.total || t.questions.length) : t.questions.length;
+    const pct   = prog ? Math.round(prog.best / total * 100) : 0;
+    const scoreLabel = prog ? `${prog.best}/${total} (${pct}%)` : `${t.questions.length} питань`;
+    const attLabel   = prog ? `Спроб: ${prog.attempts}` : '';
 
     const card = document.createElement('div');
     card.className = 'topic-card';
@@ -76,6 +79,7 @@ function renderTopics() {
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
         <span class="topic-score">${scoreLabel}</span>
       </div>
+      ${attLabel ? `<div class="topic-att">${attLabel}</div>` : ''}
     `;
     card.addEventListener('click', () => startTopic(t.id));
     grid.appendChild(card);
@@ -85,72 +89,68 @@ function renderTopics() {
 // ── Start Quiz ─────────────────────────────────────────────
 function startTopic(topicId) {
   const t = TOPICS.find(x => x.id === topicId);
+  const shuffled = shuffle([...t.questions]);
   state = {
     mode: 'topic', topicId,
-    questions: shuffle([...t.questions]),
+    questions: shuffled,
     current: 0, score: 0, answered: false, answers: []
   };
   document.getElementById('quiz-title').textContent = `${t.icon} ${t.title}`;
-  document.getElementById('quiz-sub').textContent = `${t.questions.length} питань · тренування`;
+  document.getElementById('quiz-sub').textContent   = `${t.questions.length} питань · тренування`;
   showScreen('quiz');
   renderQuestion();
 }
 
 function startNmt() {
+  const shuffled = shuffle([...NMT_TEST]);
   state = {
     mode: 'nmt', topicId: null,
-    questions: shuffle([...NMT_TEST]),
+    questions: shuffled,
     current: 0, score: 0, answered: false, answers: []
   };
   document.getElementById('quiz-title').textContent = '📋 Повний тест НМТ';
-  document.getElementById('quiz-sub').textContent = '30 питань · 60 хвилин';
+  document.getElementById('quiz-sub').textContent   = '30 питань · всі теми';
   showScreen('quiz');
   renderQuestion();
 }
 
-// Highlight uppercase stressed letters in stress-topic options
+// ── Stress highlighting ────────────────────────────────────
+// Uppercase Ukrainian VOWELS = stressed syllable
 function highlightStress(text) {
-  // Replace sequences of uppercase Ukrainian letters with styled spans
-  return text.replace(/([АЕЄИІЇОУЮЯBГДЗКЛМНПРСТЦЩФХЧ]{1})/g, (m) => {
-    // Check if this is a single uppercase Ukrainian vowel (stressed)
-    if ('АЕЄИІЇОУЮ'.includes(m)) {
-      return `<span class="stress-mark">${m}</span>`;
-    }
-    return m;
-  });
-}
-
-function formatOption(opt, topicId) {
-  if (topicId === 'stress' || (state.mode === 'nmt')) {
-    return highlightStress(opt);
-  }
-  return opt;
+  return text.replace(/[АЕЄИІЇОУЮЯ]/g, m => `<span class="stress-mark">${m}</span>`);
 }
 
 // ── Render Question ────────────────────────────────────────
 function renderQuestion() {
-  const q = state.questions[state.current];
+  const q     = state.questions[state.current];
   const total = state.questions.length;
-  const topicId = state.topicId || (q.topic === 'Наголос' ? 'stress' : '');
+  const isStress = state.topicId === 'stress' ||
+                   (state.mode === 'nmt' && q.topic === 'Наголос');
 
-  // Progress
-  document.getElementById('q-progress-fill').style.width = `${(state.current / total) * 100}%`;
+  // Progress bar
+  document.getElementById('q-progress-fill').style.width =
+    `${(state.current / total) * 100}%`;
   document.getElementById('q-count').textContent = `${state.current + 1} / ${total}`;
 
   // Topic badge
   const badge = document.getElementById('q-topic-badge');
   if (q.topic) { badge.textContent = q.topic; badge.style.display = 'inline-block'; }
-  else { badge.style.display = 'none'; }
+  else         { badge.style.display = 'none'; }
 
-  document.getElementById('question-text').textContent = q.q;
+  // Question text (highlight uppercase vowels in stress questions)
+  const qtEl = document.getElementById('question-text');
+  qtEl.innerHTML = isStress ? highlightStress(q.q) : escapeHtml(q.q);
 
-  const optsEl = document.getElementById('options');
+  // Options
+  const optsEl  = document.getElementById('options');
   optsEl.innerHTML = '';
   const letters = ['А', 'Б', 'В', 'Г'];
+
   q.opts.forEach((opt, i) => {
     const btn = document.createElement('button');
     btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${formatOption(opt, topicId)}</span>`;
+    const optHtml = isStress ? highlightStress(escapeHtml(opt)) : escapeHtml(opt);
+    btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span class="opt-text">${optHtml}</span>`;
     btn.addEventListener('click', () => selectAnswer(i));
     optsEl.appendChild(btn);
   });
@@ -160,14 +160,31 @@ function renderQuestion() {
   document.getElementById('next-btn').classList.remove('show');
   document.getElementById('finish-btn').classList.remove('show');
   state.answered = false;
+
+  // Animate card in
+  const card = document.querySelector('.question-card');
+  card.classList.remove('fade-up');
+  void card.offsetWidth;
+  card.classList.add('fade-up');
 }
 
+function escapeHtml(str) {
+  return str
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/«/g,'«')
+    .replace(/»/g,'»');
+}
+
+// ── Select Answer ──────────────────────────────────────────
 function selectAnswer(idx) {
   if (state.answered) return;
   state.answered = true;
 
-  const q = state.questions[state.current];
-  const btns = document.querySelectorAll('.option-btn');
+  const q         = state.questions[state.current];
+  const btns      = document.querySelectorAll('.option-btn');
   const isCorrect = idx === q.correct;
 
   btns[idx].classList.add(isCorrect ? 'correct' : 'wrong');
@@ -175,19 +192,15 @@ function selectAnswer(idx) {
   btns.forEach(b => b.disabled = true);
 
   if (isCorrect) state.score++;
-  state.answers.push({ correct: isCorrect, topicLabel: q.topic || '' });
+  state.answers.push({ correct: isCorrect, topic: q.topic || '' });
 
-  const expEl = document.getElementById('explanation');
-  const expText = highlightStress(q.exp);
-  expEl.innerHTML = `<strong>${isCorrect ? '✓ Правильно!' : '✗ Неправильно.'}</strong> ${expText}`;
+  const expEl   = document.getElementById('explanation');
+  const expHtml = highlightStress(escapeHtml(q.exp));
+  expEl.innerHTML = `<strong>${isCorrect ? '✓ Правильно!' : '✗ Неправильно.'}</strong> ${expHtml}`;
   expEl.classList.add('show');
 
   const isLast = state.current === state.questions.length - 1;
-  if (isLast) {
-    document.getElementById('finish-btn').classList.add('show');
-  } else {
-    document.getElementById('next-btn').classList.add('show');
-  }
+  document.getElementById(isLast ? 'finish-btn' : 'next-btn').classList.add('show');
 }
 
 function nextQuestion() {
@@ -199,11 +212,9 @@ function finishQuiz() {
   if (state.mode === 'topic') {
     saveTopicResult(state.topicId, state.score, state.questions.length);
   } else {
-    // NMT: score is out of 45 (each correct = 1 pt, 30 questions but NMT gives up to 45)
-    // Approximate: 30 questions → max 45 pts (each = 1.5 pt)
     const nmtScore = Math.round(state.score * 1.5);
-    saveNmtResult(nmtScore);
     state.nmtScore = nmtScore;
+    saveNmtResult(nmtScore);
   }
   showResult();
 }
@@ -213,7 +224,7 @@ function showResult() {
   showScreen('result');
 
   const total = state.questions.length;
-  const pct = Math.round(state.score / total * 100);
+  const pct   = Math.round(state.score / total * 100);
 
   const circle = document.getElementById('result-circle');
   circle.querySelector('.result-score').textContent = `${state.score}/${total}`;
@@ -221,15 +232,15 @@ function showResult() {
 
   document.getElementById('result-title').textContent =
     pct >= 80 ? '🎉 Відмінний результат!' :
-    pct >= 60 ? '👍 Гарна робота!' :
-    pct >= 40 ? '💪 Ще трошки попрактикуйся!' : '📖 Варто повторити матеріал';
+    pct >= 60 ? '👍 Гарна робота!'         :
+    pct >= 40 ? '💪 Практикуйся далі!'     : '📖 Повтори матеріал';
 
   document.getElementById('result-sub').textContent =
     state.mode === 'nmt'
-      ? `Приблизний бал НМТ: ${state.nmtScore}/45`
+      ? `Правильних: ${state.score}/30 · Орієнтовний бал НМТ: ${state.nmtScore}/45`
       : `Правильних відповідей: ${state.score} з ${total} (${pct}%)`;
 
-  // Breakdown for NMT mode
+  // Breakdown for NMT
   const breakdownEl = document.getElementById('result-breakdown');
   if (state.mode === 'nmt') {
     const topicMap = {};
@@ -239,12 +250,13 @@ function showResult() {
       topicMap[tl].total++;
       if (a.correct) topicMap[tl].correct++;
     });
-    breakdownEl.innerHTML = '<div class="section-title" style="margin-bottom:12px">По темах</div>';
+    breakdownEl.innerHTML = '<div class="section-title" style="margin-bottom:12px">Результат по темах</div>';
     for (const [topic, v] of Object.entries(topicMap)) {
-      const tpct = Math.round(v.correct / v.total * 100);
+      const tp  = Math.round(v.correct / v.total * 100);
       const row = document.createElement('div');
       row.className = 'breakdown-row';
-      row.innerHTML = `<span class="breakdown-topic">${topic}</span><span class="breakdown-score ${tpct >= 60 ? 'good' : 'bad'}">${v.correct}/${v.total}</span>`;
+      row.innerHTML = `<span class="breakdown-topic">${topic}</span>
+        <span class="breakdown-score ${tp >= 60 ? 'good' : 'bad'}">${v.correct}/${v.total} (${tp}%)</span>`;
       breakdownEl.appendChild(row);
     }
     breakdownEl.style.display = 'block';
@@ -260,43 +272,44 @@ function showScreen(name) {
   document.getElementById('home-screen').classList.toggle('hidden', name !== 'home');
   document.getElementById('quiz-screen').classList.toggle('active', name === 'quiz');
   document.getElementById('result-screen').classList.toggle('active', name === 'result');
-  if (name !== 'quiz') {
-    document.getElementById('quiz-screen').classList.remove('active');
-  }
+  window.scrollTo(0, 0);
 }
 
 // ── Confetti ───────────────────────────────────────────────
 function confetti() {
   const canvas = document.getElementById('confetti-canvas');
-  const ctx = canvas.getContext('2d');
+  const ctx    = canvas.getContext('2d');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  const particles = Array.from({length: 120}, () => ({
+  const COLORS = ['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#ec4899'];
+  const particles = Array.from({length: 140}, () => ({
     x: Math.random() * canvas.width, y: -10,
     r: Math.random() * 6 + 3,
-    color: ['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#ec4899'][Math.floor(Math.random()*6)],
-    vx: (Math.random()-0.5)*4, vy: Math.random()*3+2,
+    color: COLORS[Math.floor(Math.random() * COLORS.length)],
+    vx: (Math.random() - 0.5) * 4,
+    vy: Math.random() * 3 + 2,
     opacity: 1,
   }));
-  let frame;
   function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     let alive = false;
     for (const p of particles) {
-      p.x += p.vx; p.y += p.vy; p.opacity -= 0.008;
-      if (p.opacity > 0) { alive = true; }
+      p.x += p.vx; p.y += p.vy; p.opacity -= 0.007;
+      if (p.opacity > 0) alive = true;
       ctx.globalAlpha = Math.max(0, p.opacity);
-      ctx.fillStyle = p.color;
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+      ctx.fillStyle   = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
     }
     ctx.globalAlpha = 1;
-    if (alive) frame = requestAnimationFrame(draw);
-    else ctx.clearRect(0,0,canvas.width,canvas.height);
+    if (alive) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
   }
   draw();
 }
 
-// ── Utils ──────────────────────────────────────────────────
+// ── Shuffle ────────────────────────────────────────────────
 function shuffle(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -311,7 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderTopics();
 
   document.getElementById('nmt-btn').addEventListener('click', startNmt);
-  document.getElementById('back-btn').addEventListener('click', () => showScreen('home'));
+  document.getElementById('back-btn').addEventListener('click', () => {
+    if (confirm('Перервати тест? Прогрес не збережеться.')) showScreen('home');
+  });
   document.getElementById('next-btn').addEventListener('click', nextQuestion);
   document.getElementById('finish-btn').addEventListener('click', finishQuiz);
   document.getElementById('retry-btn').addEventListener('click', () => {

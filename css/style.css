@@ -153,6 +153,7 @@ body {
   transition: width .4s;
 }
 .topic-score { font-size: .72rem; color: var(--muted); white-space: nowrap; }
+.topic-att   { font-size: .7rem; color: #475569; margin-top: 4px; }
 
 /* ── Quiz Screen ── */
 .quiz-screen { display: none; }
