@@ -11,6 +11,7 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
+<div id="gradient-bg"></div>
 <canvas id="confetti-canvas"></canvas>
 <div class="app">
 
@@ -19,6 +20,10 @@
     <div class="header">
       <div class="header-top">
         <div class="header-badge">🇺🇦 Підготовка до НМТ 2026</div>
+        <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Змінити тему">
+          <i data-lucide="sun" id="theme-icon-light" style="display:none"></i>
+          <i data-lucide="moon" id="theme-icon-dark"></i>
+        </button>
         <div id="auth-widget"></div>
       </div>
       <h1>Лексика · Фразеологія · Наголоси</h1>
@@ -182,9 +187,40 @@
   </div>
 </div>
 
+<script>
+  // Theme init — runs before DOM paint to avoid flash
+  (function() {
+    const saved = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+  })();
+
+  function toggleTheme() {
+    const html = document.documentElement;
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+    updateThemeIcon(next);
+    if (window.updateGradientTheme) window.updateGradientTheme(next);
+  }
+
+  function updateThemeIcon(theme) {
+    const light = document.getElementById('theme-icon-light');
+    const dark  = document.getElementById('theme-icon-dark');
+    if (!light || !dark) return;
+    light.style.display = theme === 'light' ? '' : 'none';
+    dark.style.display  = theme === 'dark'  ? '' : 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
+    const theme = localStorage.getItem('theme') || 'dark';
+    updateThemeIcon(theme);
+  });
+</script>
 <script src="data/questions.js"></script>
 <script src="js/app.js"></script>
 <script src="js/auth.js"></script>
-<script>document.addEventListener('DOMContentLoaded', () => lucide.createIcons());</script>
+<script src="js/gradient-bg.js"></script>
 </body>
 </html>

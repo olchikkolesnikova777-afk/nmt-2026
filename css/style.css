@@ -1,12 +1,12 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    НМТ 2026 — Design System
-   Dark Modern · Linear-inspired
+   Dark + Light Pink themes
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Surfaces */
+  /* Surfaces — dark */
   --bg:       #09090B;
   --s1:       rgba(255,255,255,.04);
   --s2:       rgba(255,255,255,.06);
@@ -18,8 +18,8 @@
   --b3: rgba(255,255,255,.22);
 
   /* Glass */
-  --glass:    blur(24px) saturate(160%);
-  --shine:    inset 0 1px 0 rgba(255,255,255,.10);
+  --glass: blur(24px) saturate(160%);
+  --shine: inset 0 1px 0 rgba(255,255,255,.10);
 
   /* Text */
   --t1: #F4F4F5;
@@ -27,7 +27,7 @@
   --t3: #A1A1AA;
   --t4: #71717A;
 
-  /* Accent — indigo/violet gradient */
+  /* Accent — indigo/violet */
   --a:      #6366F1;
   --a2:     #8B5CF6;
   --a-grad: linear-gradient(135deg, #6366F1, #8B5CF6);
@@ -42,6 +42,9 @@
   --gold:       #F59E0B;
   --cyan:       #06B6D4;
 
+  /* Font */
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+
   /* Radius */
   --r:    16px;
   --r-sm: 10px;
@@ -51,9 +54,42 @@
   --sh1: 0 1px 2px rgba(0,0,0,.4);
   --sh2: 0 4px 16px rgba(0,0,0,.5), 0 1px 3px rgba(0,0,0,.3);
   --sh3: 0 8px 32px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4);
+}
 
-  /* Font */
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+/* ━━━━ LIGHT PINK THEME ━━━━━━━━━━━━ */
+[data-theme="light"] {
+  --bg:       #FDF2F6;
+  --s1:       rgba(255,255,255,.75);
+  --s2:       rgba(255,255,255,.82);
+  --s3:       rgba(255,255,255,.60);
+
+  --b1: rgba(210,100,140,.12);
+  --b2: rgba(210,100,140,.20);
+  --b3: rgba(210,100,140,.35);
+
+  --shine: inset 0 1px 0 rgba(255,255,255,.90);
+
+  --t1: #1a0d13;
+  --t2: #3d1f2d;
+  --t3: #8b5a6e;
+  --t4: #c497aa;
+
+  --a:      #C2456A;
+  --a2:     #E0729A;
+  --a-grad: linear-gradient(135deg, #C2456A, #E0729A);
+  --a-glow: rgba(194,69,106,.22);
+  --a-soft: rgba(194,69,106,.10);
+
+  --green:      #2D9B6B;
+  --green-soft: rgba(45,155,107,.10);
+  --red:        #C94040;
+  --red-soft:   rgba(201,64,64,.10);
+  --gold:       #C47B1A;
+  --cyan:       #1A8FA8;
+
+  --sh1: 0 1px 3px rgba(180,80,120,.08);
+  --sh2: 0 4px 20px rgba(180,80,120,.12), 0 1px 4px rgba(180,80,120,.08);
+  --sh3: 0 8px 40px rgba(180,80,120,.16), 0 2px 8px rgba(180,80,120,.10);
 }
 
 /* ━━━━ BASE ━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -69,22 +105,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dot-grid background texture */
+/* Animated gradient background (JS-driven) */
+#gradient-bg {
+  position: fixed; inset: 0; z-index: -2;
+  will-change: background;
+}
+
+/* Dot-grid texture on top of gradient */
 body::before {
   content: '';
   position: fixed; inset: 0; z-index: -1;
-  background-image: radial-gradient(circle, rgba(255,255,255,.04) 1px, transparent 1px);
+  background-image: radial-gradient(circle, rgba(255,255,255,.035) 1px, transparent 1px);
   background-size: 28px 28px;
-}
-
-/* Ambient glow blobs */
-body::after {
-  content: '';
-  position: fixed; z-index: -1;
-  width: 600px; height: 600px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(99,102,241,.08) 0%, transparent 70%);
-  top: -200px; left: -100px;
   pointer-events: none;
 }
 
@@ -194,15 +226,7 @@ body::after {
 .topic-card:hover::before { opacity: 1; }
 .topic-card:hover::after  { opacity: 1; }
 
-/* iOS app icon badge */
-.topic-icon-badge {
-  width: 52px; height: 52px; border-radius: 14px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 16px;
-  background: var(--c, var(--a));
-  box-shadow: 0 4px 16px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.15);
-}
-.topic-icon-badge svg { width: 24px; height: 24px; stroke: rgba(255,255,255,.92); stroke-width: 1.75; }
+.topic-icon { font-size: 2.2rem; margin-bottom: 12px; line-height: 1; }
 
 .topic-title {
   font-size: .95rem; font-weight: 700;
@@ -626,3 +650,66 @@ body::after {
   .fc-summary-inner { padding: 32px 22px; }
   .auth-modal { padding: 28px 20px; }
 }
+
+/* ━━━━ THEME TOGGLE BUTTON ━━━━━━━━━━ */
+.theme-toggle {
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  background: var(--s2); border: 1px solid var(--b2);
+  border-radius: 50%; cursor: pointer; color: var(--t3);
+  backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+  transition: color .2s, border-color .2s, box-shadow .2s;
+  box-shadow: var(--sh1);
+}
+.theme-toggle:hover { color: var(--a); border-color: var(--b3); box-shadow: var(--sh2); }
+.theme-toggle svg { width: 16px; height: 16px; }
+
+/* ━━━━ LIGHT THEME OVERRIDES ━━━━━━━━ */
+
+/* h1 gradient: dark on light background */
+[data-theme="light"] .header h1 {
+  background: linear-gradient(135deg, var(--a) 0%, var(--a2) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Dot-grid: use darker dots on light bg */
+[data-theme="light"] body::before {
+  background-image: radial-gradient(circle, rgba(194,69,106,.10) 1px, transparent 1px);
+}
+
+/* Flashcard front/back stripes */
+[data-theme="light"] .fc-front { background: rgba(255,255,255,.88); }
+[data-theme="light"] .fc-back  { background: rgba(255,255,255,.88); }
+
+/* fc-front wrong label bar */
+[data-theme="light"] .fc-front::before {
+  background: linear-gradient(135deg, rgba(201,64,64,.12), rgba(201,64,64,.06));
+}
+[data-theme="light"] .fc-back::before {
+  background: linear-gradient(135deg, rgba(45,155,107,.12), rgba(45,155,107,.06));
+}
+
+/* header-top right cluster spacing */
+.header-top { gap: 10px; }
+
+/* Auth modal on light */
+[data-theme="light"] .auth-modal-overlay { background: rgba(253,242,246,.7); }
+[data-theme="light"] .auth-modal { background: rgba(255,255,255,.92); }
+
+/* Result circle on light */
+[data-theme="light"] .result-circle { background: rgba(255,255,255,.82); }
+
+/* Quiz question card on light */
+[data-theme="light"] .question-card { background: rgba(255,255,255,.82); }
+
+/* Option hover/correct/wrong on light */
+[data-theme="light"] .option { background: rgba(255,255,255,.70); }
+[data-theme="light"] .option:hover { background: rgba(255,255,255,.92); }
+
+/* Progress fill stays accent */
+[data-theme="light"] .q-progress-fill { background: var(--a-grad); }
+
+/* Topic card on light */
+[data-theme="light"] .topic-card { background: rgba(255,255,255,.78); }
+[data-theme="light"] .topic-card:hover { background: rgba(255,255,255,.92); }

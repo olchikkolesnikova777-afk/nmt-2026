@@ -74,7 +74,7 @@ function renderHome() {
     card.className = 'topic-card';
     card.style.setProperty('--c', t.color);
     card.innerHTML = `
-      <div class="topic-icon-badge"><i data-lucide="${t.icon}"></i></div>
+      <div class="topic-icon">${t.icon}</div>
       <span class="topic-mode-badge ${modeCls}"><i data-lucide="${modeIcon}"></i> ${modeLabel}</span>
       <div class="topic-title">${t.title}</div>
       <div class="topic-desc">${esc(t.description)}</div>
@@ -114,8 +114,7 @@ function startFlashcards(topic, onlyUnknown = false) {
   };
 
   const fcTitle = document.getElementById('fc-title');
-  fcTitle.innerHTML = `<i data-lucide="${topic.icon}" style="vertical-align:middle;margin-right:6px;width:18px;height:18px"></i>${topic.title}`;
-  lucide.createIcons({ el: fcTitle });
+  fcTitle.textContent = `${topic.icon} ${topic.title}`;
   fcTitle.style.color = topic.color;
   document.getElementById('fc-sub').textContent   = `${topic.cards.length} карток · натисни щоб перегорнути`;
 
@@ -267,9 +266,8 @@ function startQuiz(topic) {
     idx: 0, score: 0, answered: false, answers: [],
   };
   const quizTitle = document.getElementById('quiz-title');
-  quizTitle.innerHTML = `<i data-lucide="${topic.icon}" style="vertical-align:middle;margin-right:6px;width:18px;height:18px"></i>${topic.title}`;
+  quizTitle.textContent = `${topic.icon} ${topic.title}`;
   quizTitle.style.color = topic.color;
-  lucide.createIcons({ el: quizTitle });
   document.getElementById('quiz-sub').textContent   = `${topic.questions.length} питань · квіз`;
   show('quiz-screen');
   renderQuestion();

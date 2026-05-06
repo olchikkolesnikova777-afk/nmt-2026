@@ -338,13 +338,13 @@ const STRESS_CARDS = [
 
 const TOPICS = [
   {
-    id:"lexical",title:"Лексичні помилки",icon:"alert-circle",color:"#6366F1",
+    id:"lexical",title:"Лексичні помилки",icon:"⚠️",color:"#6366F1",
     mode:"flashcard",
     description:"100 пар неправильно → правильно",
     cards:LEXICAL_CARDS
   },
   {
-    id:"phraseology",title:"Фразеологізми",icon:"message-square",color:"#8B5CF6",
+    id:"phraseology",title:"Фразеологізми",icon:"💬",color:"#8B5CF6",
     mode:"quiz",
     description:"241 фразеологізм з поясненнями",
     questions:[
@@ -592,7 +592,7 @@ const TOPICS = [
     ]
   },
   {
-    id:"stress",title:"Наголоси",icon:"volume-2",color:"#06B6D4",
+    id:"stress",title:"Наголоси",icon:"🔊",color:"#06B6D4",
     mode:"flashcard",
     description:"229 слів з правильним наголосом",
     cards:STRESS_CARDS
