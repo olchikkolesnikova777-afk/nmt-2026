@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Deploy via SSH (key auth)
         uses: appleboy/ssh-action@v1.0.3
@@ -16,7 +16,7 @@ jobs:
           username: root
           key: ${{ secrets.DEPLOY_KEY }}
           port: ${{ secrets.DEPLOY_SSH_PORT }}
-          timeout: 60s
+          timeout: 120s
           script: |
             set -e
             cd /root/nmt-2026
@@ -32,7 +32,7 @@ jobs:
           username: root
           password: ${{ secrets.DEPLOY_PASSWORD }}
           port: ${{ secrets.DEPLOY_SSH_PORT }}
-          timeout: 60s
+          timeout: 120s
           script: |
             set -e
             cd /root/nmt-2026
