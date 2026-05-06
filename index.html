@@ -4,7 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>НМТ 2026 — Лексика · Фразеологія · Наголоси</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
 <canvas id="confetti-canvas"></canvas>
@@ -13,8 +17,11 @@
   <!-- ═══ HOME ═══ -->
   <div id="home-screen">
     <div class="header">
-      <div class="header-badge">🇺🇦 Підготовка до НМТ 2026</div>
-      <h1><span style="color:#e11d48">Лексика</span> · <span style="color:#7c3aed">Фразеологія</span> · <span style="color:#0891b2">Наголоси</span></h1>
+      <div class="header-top">
+        <div class="header-badge">🇺🇦 Підготовка до НМТ 2026</div>
+        <div id="auth-widget"></div>
+      </div>
+      <h1>Лексика · Фразеологія · Наголоси</h1>
     </div>
 
     <div class="stats-bar">
@@ -35,16 +42,16 @@
     <div class="topic-grid" id="topic-grid"></div>
 
     <div class="legend">
-      <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span><strong>Картки:</strong> натисни — побачиш правильну відповідь</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#10b981"></span><strong>Квіз:</strong> обери правильне значення з 4 варіантів</div>
-      <div class="legend-item"><span class="legend-dot" style="background:#6366f1"></span>Наголошений склад = <span class="stress-mark">ВЕЛИКА</span> літера: алф<span class="stress-mark">А</span>віт</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#6366F1"></span><strong>Картки:</strong> натисни — побачиш правильну відповідь</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#22C55E"></span><strong>Квіз:</strong> обери правильне значення з 4 варіантів</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#06B6D4"></span>Наголошений склад = <span class="stress-mark">РОЖЕВА</span> літера: алф<span class="stress-mark">А</span>віт</div>
     </div>
   </div>
 
   <!-- ═══ FLASHCARD SCREEN ═══ -->
   <div id="flashcard-screen" class="hidden">
     <div class="quiz-header">
-      <button class="back-btn" id="fc-back-btn">← Назад</button>
+      <button class="back-btn" id="fc-back-btn"><i data-lucide="chevron-left"></i> Назад</button>
       <div class="quiz-meta">
         <h2 id="fc-title"></h2>
         <p id="fc-sub"></p>
@@ -73,25 +80,25 @@
     </div>
 
     <div class="fc-controls">
-      <button class="fc-btn fc-prev" id="fc-prev">← Назад</button>
+      <button class="fc-btn fc-prev" id="fc-prev"><i data-lucide="chevron-left"></i></button>
       <div class="fc-dots" id="fc-dots"></div>
-      <button class="fc-btn fc-next" id="fc-next">Далі →</button>
+      <button class="fc-btn fc-next" id="fc-next"><i data-lucide="chevron-right"></i></button>
     </div>
 
     <div class="fc-bottom">
-      <button class="fc-known" id="fc-known">✓ Знаю</button>
-      <button class="fc-unknown" id="fc-unknown">✗ Ще вивчаю</button>
+      <button class="fc-known" id="fc-known"><i data-lucide="check"></i> Знаю</button>
+      <button class="fc-unknown" id="fc-unknown"><i data-lucide="x"></i> Ще вивчаю</button>
     </div>
 
     <div class="fc-summary hidden" id="fc-summary">
       <div class="fc-summary-inner">
-        <div class="fc-sum-icon">🎉</div>
+        <div class="fc-sum-icon" id="fc-sum-icon"></div>
         <h3 id="fc-sum-title">Усі картки переглянуто!</h3>
         <p id="fc-sum-sub"></p>
         <div class="result-btns">
-          <button class="result-btn primary" id="fc-retry-unknown">🔁 Повторити невивчені</button>
-          <button class="result-btn primary" id="fc-retry-all">↺ Почати заново</button>
-          <button class="result-btn secondary" id="fc-home">🏠 Додому</button>
+          <button class="result-btn primary" id="fc-retry-unknown"><i data-lucide="rotate-ccw"></i> Повторити невивчені</button>
+          <button class="result-btn primary" id="fc-retry-all"><i data-lucide="refresh-cw"></i> Почати заново</button>
+          <button class="result-btn secondary" id="fc-home"><i data-lucide="house"></i> Додому</button>
         </div>
       </div>
     </div>
@@ -100,7 +107,7 @@
   <!-- ═══ QUIZ SCREEN ═══ -->
   <div id="quiz-screen" class="hidden">
     <div class="quiz-header">
-      <button class="back-btn" id="quiz-back-btn">← Назад</button>
+      <button class="back-btn" id="quiz-back-btn"><i data-lucide="chevron-left"></i> Назад</button>
       <div class="quiz-meta">
         <h2 id="quiz-title"></h2>
         <p id="quiz-sub"></p>
@@ -120,8 +127,8 @@
     </div>
 
     <div class="quiz-actions">
-      <button class="next-btn" id="next-btn">Далі →</button>
-      <button class="finish-btn" id="finish-btn">Завершити ✓</button>
+      <button class="next-btn" id="next-btn">Далі <i data-lucide="chevron-right"></i></button>
+      <button class="finish-btn" id="finish-btn"><i data-lucide="check"></i> Завершити</button>
     </div>
   </div>
 
@@ -135,14 +142,49 @@
     <div class="result-sub" id="result-sub"></div>
     <div class="result-breakdown" id="result-breakdown"></div>
     <div class="result-btns">
-      <button class="result-btn primary" id="retry-btn">🔁 Ще раз</button>
-      <button class="result-btn secondary" id="home-btn">🏠 Додому</button>
+      <button class="result-btn primary" id="retry-btn"><i data-lucide="rotate-ccw"></i> Ще раз</button>
+      <button class="result-btn secondary" id="home-btn"><i data-lucide="house"></i> Додому</button>
     </div>
   </div>
 
 </div>
 
+<!-- ═══ AUTH MODAL ═══ -->
+<div id="auth-modal" class="auth-modal-overlay hidden" onclick="if(event.target===this)closeAuthModal()">
+  <div class="auth-modal">
+    <button class="auth-modal-close" onclick="closeAuthModal()">✕</button>
+    <h2 class="auth-modal-title">НМТ 2026</h2>
+    <p class="auth-modal-sub">Збережи свій прогрес у хмарі</p>
+
+    <div class="auth-tabs">
+      <button id="tab-login" class="auth-tab active" onclick="switchTab('login')">Увійти</button>
+      <button id="tab-register" class="auth-tab" onclick="switchTab('register')">Реєстрація</button>
+    </div>
+
+    <div id="auth-error" class="auth-error"></div>
+
+    <!-- Login form -->
+    <div id="form-login">
+      <input id="login-email" class="auth-input" type="email" placeholder="Email" autocomplete="email">
+      <input id="login-password" class="auth-input" type="password" placeholder="Пароль" autocomplete="current-password">
+      <button id="login-submit" class="auth-submit" onclick="handleLogin()">Увійти</button>
+      <p class="auth-switch">Немає акаунту? <a href="#" onclick="switchTab('register');return false">Зареєструватися</a></p>
+    </div>
+
+    <!-- Register form -->
+    <div id="form-register" class="hidden">
+      <input id="reg-name" class="auth-input" type="text" placeholder="Твоє ім'я" autocomplete="name">
+      <input id="reg-email" class="auth-input" type="email" placeholder="Email" autocomplete="email">
+      <input id="reg-password" class="auth-input" type="password" placeholder="Пароль (мін. 6 символів)" autocomplete="new-password">
+      <button id="reg-submit" class="auth-submit" onclick="handleRegister()">Зареєструватися</button>
+      <p class="auth-switch">Вже є акаунт? <a href="#" onclick="switchTab('login');return false">Увійти</a></p>
+    </div>
+  </div>
+</div>
+
 <script src="data/questions.js"></script>
 <script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script>document.addEventListener('DOMContentLoaded', () => lucide.createIcons());</script>
 </body>
 </html>

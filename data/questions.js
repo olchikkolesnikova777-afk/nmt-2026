@@ -72,7 +72,7 @@ const LEXICAL_CARDS = [
   {wrong:"Учора в нас був дівішнік",correct:"Учора в нас був дівич-вечір"},
   {wrong:"Я випила каву натощак",correct:"Я випила каву натщесерце/на порожній шлунок"},
   {wrong:"Так як я не змогла прийти",correct:"Оскільки/тому що я не змогла прийти"},
-  {wrong:"Музикальний слух",correct:"Музичний слух"},
+  {wrong:"Музичний слух",correct:"Музикальний слух"},
   {wrong:"Лагідна посмішка",correct:"Лагідна усмішка"},
   {wrong:"Хресний батько",correct:"Хрещений батько"},
   {wrong:"Корисливі матеріали",correct:"Корисні матеріали"},
@@ -338,13 +338,13 @@ const STRESS_CARDS = [
 
 const TOPICS = [
   {
-    id:"lexical",title:"Лексичні помилки",icon:"⚠️",color:"#e11d48",
+    id:"lexical",title:"Лексичні помилки",icon:"alert-circle",color:"#6366F1",
     mode:"flashcard",
     description:"100 пар неправильно → правильно",
     cards:LEXICAL_CARDS
   },
   {
-    id:"phraseology",title:"Фразеологізми",icon:"💬",color:"#7c3aed",
+    id:"phraseology",title:"Фразеологізми",icon:"message-square",color:"#8B5CF6",
     mode:"quiz",
     description:"241 фразеологізм з поясненнями",
     questions:[
@@ -592,7 +592,7 @@ const TOPICS = [
     ]
   },
   {
-    id:"stress",title:"Наголоси",icon:"🔊",color:"#0891b2",
+    id:"stress",title:"Наголоси",icon:"volume-2",color:"#06B6D4",
     mode:"flashcard",
     description:"229 слів з правильним наголосом",
     cards:STRESS_CARDS

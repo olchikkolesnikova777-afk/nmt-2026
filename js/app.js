@@ -66,15 +66,16 @@ function renderHome() {
       }
     }
 
-    const modeLabel = t.mode === 'flashcard' ? '🃏 Картки' : '🎯 Квіз';
+    const modeIcon  = t.mode === 'flashcard' ? 'layers' : 'target';
+    const modeLabel = t.mode === 'flashcard' ? 'Картки' : 'Квіз';
     const modeCls   = t.mode === 'flashcard' ? 'card-mode' : 'quiz-mode';
 
     const card = document.createElement('div');
     card.className = 'topic-card';
     card.style.setProperty('--c', t.color);
     card.innerHTML = `
-      <div class="topic-icon">${t.icon}</div>
-      <span class="topic-mode-badge ${modeCls}">${modeLabel}</span>
+      <div class="topic-icon-badge"><i data-lucide="${t.icon}"></i></div>
+      <span class="topic-mode-badge ${modeCls}"><i data-lucide="${modeIcon}"></i> ${modeLabel}</span>
       <div class="topic-title">${t.title}</div>
       <div class="topic-desc">${esc(t.description)}</div>
       <div class="topic-progress">
@@ -84,6 +85,7 @@ function renderHome() {
     card.addEventListener('click', () => openTopic(t.id));
     grid.appendChild(card);
   }
+  lucide.createIcons();
 }
 
 function openTopic(id) {
@@ -112,7 +114,8 @@ function startFlashcards(topic, onlyUnknown = false) {
   };
 
   const fcTitle = document.getElementById('fc-title');
-  fcTitle.textContent = `${topic.icon} ${topic.title}`;
+  fcTitle.innerHTML = `<i data-lucide="${topic.icon}" style="vertical-align:middle;margin-right:6px;width:18px;height:18px"></i>${topic.title}`;
+  lucide.createIcons({ el: fcTitle });
   fcTitle.style.color = topic.color;
   document.getElementById('fc-sub').textContent   = `${topic.cards.length} карток · натисни щоб перегорнути`;
 
@@ -125,11 +128,17 @@ function startFlashcards(topic, onlyUnknown = false) {
 function buildDots() {
   const dotsEl = document.getElementById('fc-dots');
   dotsEl.innerHTML = '';
-  const max = Math.min(fc.cards.length, 40);
-  for (let i = 0; i < max; i++) {
+  const count = fc.cards.length;
+  // Scale dot size: small for large decks
+  const size = count > 150 ? 4 : count > 60 ? 6 : 8;
+  const gap  = count > 150 ? 2 : count > 60 ? 3 : 5;
+  dotsEl.style.gap = gap + 'px';
+  for (let i = 0; i < count; i++) {
     const d = document.createElement('div');
     d.className = 'fc-dot';
     d.id = `dot-${i}`;
+    d.style.width = size + 'px';
+    d.style.height = size + 'px';
     dotsEl.appendChild(d);
   }
 }
@@ -157,24 +166,24 @@ function renderCard() {
   if (isStress) {
     // Stress card: front = plain word, back = stressed word
     frontEl.innerHTML = `
-      <div class="fc-label fc-stress-label">🔊 Наголос</div>
+      <div class="fc-label fc-stress-label"><i data-lucide="volume-2"></i> Наголос</div>
       <div class="fc-word">${esc(c.plain)}</div>
       <div class="fc-hint">Натисни — побачиш правильний наголос</div>`;
     backEl.innerHTML = `
-      <div class="fc-label fc-stress-label">✓ Правильно</div>
+      <div class="fc-label fc-stress-label"><i data-lucide="check"></i> Правильно</div>
       <div class="fc-word">${hilightStress(c.stressed)}</div>
-      <div class="fc-hint">Жовта літера = наголошений склад</div>`;
+      <div class="fc-hint">Рожева літера = наголошений склад</div>`;
   } else {
-    // Lexical error card: front = wrong, back = correct
     frontEl.innerHTML = `
-      <div class="fc-label fc-wrong-label">❌ Неправильно</div>
+      <div class="fc-label fc-wrong-label"><i data-lucide="x"></i> Неправильно</div>
       <div class="fc-word">${esc(c.wrong)}</div>
       <div class="fc-hint">Натисни — побачиш правильну форму</div>`;
     backEl.innerHTML = `
-      <div class="fc-label fc-correct-label">✅ Правильно</div>
+      <div class="fc-label fc-correct-label"><i data-lucide="check"></i> Правильно</div>
       <div class="fc-word">${esc(c.correct)}</div>
       <div class="fc-hint">Натисни, щоб перегорнути назад</div>`;
   }
+  lucide.createIcons();
 
   // Update dots
   updateDots();
@@ -187,7 +196,7 @@ function renderCard() {
 }
 
 function updateDots() {
-  const max = Math.min(fc.cards.length, 40);
+  const max = fc.cards.length;
   for (let i = 0; i < max; i++) {
     const d = document.getElementById(`dot-${i}`);
     if (!d) continue;
@@ -223,13 +232,14 @@ function showFcSummary() {
   const total   = fc.cards.length;
   const pct     = Math.round(known / total * 100);
 
-  document.getElementById('fc-sum-icon').textContent =
-    pct >= 80 ? '🎉' : pct >= 50 ? '👍' : '📖';
+  const sumIconName = pct >= 80 ? 'sparkles' : pct >= 50 ? 'thumbs-up' : 'book-open';
+  document.getElementById('fc-sum-icon').innerHTML = `<i data-lucide="${sumIconName}"></i>`;
+  lucide.createIcons({ el: document.getElementById('fc-sum-icon') });
   document.getElementById('fc-sum-title').textContent =
     pct >= 80 ? 'Чудово! Більшість вже знаєш!' :
     pct >= 50 ? 'Непогано! Продовжуй повторювати.' : 'Вивчай далі, ти справишся!';
   document.getElementById('fc-sum-sub').innerHTML =
-    `✅ Знаю: <b>${known}</b> &nbsp; ✗ Ще вчу: <b>${unknown}</b> &nbsp; — Не оцінено: <b>${unseen}</b>`;
+    `<span class="sum-stat ok">Знаю: <b>${known}</b></span> &nbsp; <span class="sum-stat err">Вчу: <b>${unknown}</b></span> &nbsp; <span class="sum-stat muted">Не оцінено: <b>${unseen}</b></span>`;
 
   // Save progress
   const p = loadProg();
@@ -237,6 +247,7 @@ function showFcSummary() {
   p[fc.topicId].seen  = (p[fc.topicId].seen || 0) + total;
   p[fc.topicId].known = known;
   saveProg(p);
+  if (typeof syncProgressToServer === 'function') syncProgressToServer(fc.topicId, p[fc.topicId]);
 
   document.getElementById('fc-retry-unknown').disabled = unknown === 0;
   document.getElementById('fc-summary').classList.remove('hidden');
@@ -256,8 +267,9 @@ function startQuiz(topic) {
     idx: 0, score: 0, answered: false, answers: [],
   };
   const quizTitle = document.getElementById('quiz-title');
-  quizTitle.textContent = `${topic.icon} ${topic.title}`;
+  quizTitle.innerHTML = `<i data-lucide="${topic.icon}" style="vertical-align:middle;margin-right:6px;width:18px;height:18px"></i>${topic.title}`;
   quizTitle.style.color = topic.color;
+  lucide.createIcons({ el: quizTitle });
   document.getElementById('quiz-sub').textContent   = `${topic.questions.length} питань · квіз`;
   show('quiz-screen');
   renderQuestion();
@@ -310,7 +322,7 @@ function selectAnswer(idx) {
   btns.forEach(b => b.disabled = true);
 
   const expEl = document.getElementById('explanation');
-  expEl.innerHTML = `<strong>${ok ? '✓ Правильно!' : '✗ Неправильно.'}</strong> ${esc(q.exp)}`;
+  expEl.innerHTML = `<strong>${ok ? 'Правильно!' : 'Неправильно.'}</strong> ${esc(q.exp)}`;
   expEl.classList.add('show');
 
   const isLast = qz.idx === qz.questions.length - 1;
@@ -324,6 +336,7 @@ function finishQuiz() {
   p[qz.topic.id].total    = qz.questions.length;
   p[qz.topic.id].attempts = (p[qz.topic.id].attempts || 0) + 1;
   saveProg(p);
+  if (typeof syncProgressToServer === 'function') syncProgressToServer(qz.topic.id, p[qz.topic.id]);
 
   const pct = Math.round(qz.score / qz.questions.length * 100);
   const circle = document.getElementById('result-circle');
@@ -331,7 +344,7 @@ function finishQuiz() {
   circle.className = 'result-circle ' + (pct >= 70 ? '' : pct >= 50 ? 'mid' : 'bad');
 
   document.getElementById('result-title').textContent =
-    pct >= 80 ? '🎉 Відмінно!' : pct >= 60 ? '👍 Добре!' : pct >= 40 ? '💪 Практикуйся!' : '📖 Повтори матеріал';
+    pct >= 80 ? 'Відмінно!' : pct >= 60 ? 'Добре!' : pct >= 40 ? 'Практикуйся!' : 'Повтори матеріал';
   document.getElementById('result-sub').textContent =
     `Правильних: ${qz.score} з ${qz.questions.length} (${pct}%)`;
   document.getElementById('result-breakdown').style.display = 'none';
