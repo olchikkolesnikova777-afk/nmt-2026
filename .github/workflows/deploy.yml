@@ -9,54 +9,13 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
-      - name: Deploy via SSH
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_PORT: ${{ secrets.DEPLOY_SSH_PORT }}
-          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
-          DEPLOY_PASSWORD: ${{ secrets.DEPLOY_PASSWORD }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy with Docker Compose
         run: |
-          python3 - << 'PYEOF'
-          import pexpect, os, sys, tempfile
-
-          host     = os.environ['DEPLOY_HOST']
-          port     = os.environ['DEPLOY_PORT']
-          password = os.environ['DEPLOY_PASSWORD']
-          key_data = os.environ['DEPLOY_KEY']
-
-          # Write key to temp file
-          with tempfile.NamedTemporaryFile(mode='w', suffix='.key', delete=False) as f:
-              f.write(key_data)
-              key_path = f.name
-          os.chmod(key_path, 0o600)
-
-          script = "cd /root/nmt-2026 && git pull origin main && docker compose up -d --build 2>&1"
-
-          # Try key auth
-          cmd = f'ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -i {key_path} -p {port} root@{host} "{script}"'
-          print(f"Connecting to {host}:{port} with key...")
-          child = pexpect.spawn(cmd, timeout=180, encoding='utf-8')
-          child.logfile = sys.stdout
-          i = child.expect(['\\$', '\\#', 'denied', pexpect.EOF, pexpect.TIMEOUT], timeout=30)
-          if i in (0, 1):
-              child.expect(pexpect.EOF, timeout=180)
-              print("\nDeployed successfully!")
-              sys.exit(0)
-
-          child.close()
-
-          # Try password auth
-          print(f"Key auth failed, trying password...")
-          cmd = f'ssh -o StrictHostKeyChecking=no -o ConnectTimeout=15 -p {port} root@{host} "{script}"'
-          child = pexpect.spawn(cmd, timeout=180, encoding='utf-8')
-          child.logfile = sys.stdout
-          j = child.expect(['password:', 'Password:', pexpect.EOF, pexpect.TIMEOUT], timeout=20)
-          if j in (0, 1):
-              child.sendline(password)
-              child.expect(pexpect.EOF, timeout=180)
-              print("\nDeployed via password!")
-              sys.exit(0)
-
-          print("Both auth methods failed")
-          sys.exit(1)
-          PYEOF
+          cd /root/nmt-2026
+          git pull origin main
+          docker compose up -d --build
+          echo "Deployed successfully!"
+          docker compose ps
